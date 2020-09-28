@@ -4,7 +4,7 @@
       <router-link to="/">Home</router-link> | <router-link to="/about">About</router-link> |
       <router-link to="/battle">Battle</router-link>
     </div>
-    <router-view />
+    <ContentContainer />
   </div>
 </template>
 
@@ -18,8 +18,11 @@ import { ItemConfigurations, SkillConfiguration } from 'sora-game-core';
 import { defineComponent, onMounted } from 'vue';
 
 import { useGame } from '@/use';
+import ContentContainer from '@/views/ContentContainer.vue';
 
 export default defineComponent({
+  name: 'App',
+  components: { ContentContainer },
   setup() {
     const game = useGame();
 

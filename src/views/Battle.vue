@@ -1,25 +1,58 @@
 <template>
   <div class="battle">
-    {{ name }}
+    {{ battle.name }}
+    <BattleFaction class="faction1" :faction="battle.factions[0]" reverse />
+    <BattleFaction class="faction2" :faction="battle.factions[1]" />
+    <BattleFaction v-if="battle.factions[2]" class="faction3" :faction="battle.factions[2]" />
   </div>
 </template>
 
 <script lang="ts">
 import { Game } from 'sora-game-core';
-import { defineComponent } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
+
+import BattleFaction from '@/components/BattleFaction.vue';
 
 export default defineComponent({
   name: 'Battle',
+  components: { BattleFaction },
   setup() {
     const game = Game.getInstence();
     const team = game.teamCenter.teams[0];
-    const battle = game.battleCenter.generateBattle('Battle00001', team);
-    battle.autoMode = true;
-    const promise = battle.start();
+    const battle = ref(game.battleCenter.generateBattle('Battle00001', team));
 
-    const name = battle.name;
+    onMounted(() => {
+      battle.value = game.battleCenter.generateBattle('Battle00001', team);
+      battle.value.autoMode = true;
+      battle.value.start();
+    });
 
-    return { name };
+    return { battle };
   },
 });
 </script>
+<style lang="less" scoped>
+.faction1 {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+
+  border: dashed #32a1ce;
+}
+
+.faction2 {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+
+  border: dashed #32a1ce;
+}
+
+.faction3 {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+
+  border: dashed #32a1ce;
+}
+</style>

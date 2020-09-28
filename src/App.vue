@@ -9,13 +9,27 @@
 </template>
 
 <script lang="ts">
+import battles from '@assets/battles.json';
+import characters from '@assets/characters.json';
+import items from '@assets/items.json';
+import skills from '@assets/skills.json';
 import save from '@saves/sav001.json';
-import { Game } from 'sora-game-core';
+import { ItemConfigurations, SkillConfiguration } from 'sora-game-core';
 import { defineComponent, onMounted } from 'vue';
+
+import { useGame } from '@/use';
 
 export default defineComponent({
   setup() {
-    const game = Game.getInstence();
+    const game = useGame();
+
+    (window as any).game = game;
+
+    //加载配置
+    game.skillCenter.loadConfiguration(skills as Array<SkillConfiguration>);
+    game.backpack.loadConfigurations(items as ItemConfigurations);
+    game.characterCenter.loadConfiguration(characters);
+    game.battleCenter.loadConfiguration(battles);
     onMounted(() => {
       game.loadSave(save);
     });

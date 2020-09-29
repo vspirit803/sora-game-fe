@@ -9,7 +9,7 @@
 
 <script lang="ts">
 import { Game } from 'sora-game-core';
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, onUnmounted, ref } from 'vue';
 
 import BattleFaction from '@/components/BattleFaction.vue';
 
@@ -25,6 +25,10 @@ export default defineComponent({
       battle.value = game.battleCenter.generateBattle('Battle00001', team);
       battle.value.autoMode = true;
       battle.value.start();
+    });
+
+    onUnmounted(() => {
+      battle.value.end();
     });
 
     return { battle };

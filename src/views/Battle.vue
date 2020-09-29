@@ -8,8 +8,8 @@
 </template>
 
 <script lang="ts">
-import { Game } from 'sora-game-core';
-import { defineComponent, onMounted, onUnmounted, ref } from 'vue';
+import { Battle, Game } from 'sora-game-core';
+import { defineComponent, onMounted, onUnmounted, Ref, ref } from 'vue';
 
 import BattleFaction from '@/components/BattleFaction.vue';
 
@@ -19,13 +19,9 @@ export default defineComponent({
   setup() {
     const game = Game.getInstence();
     const team = game.teamCenter.teams[0];
-    const battle = ref(game.battleCenter.generateBattle('Battle00001', team));
-
-    onMounted(() => {
-      battle.value = game.battleCenter.generateBattle('Battle00001', team);
-      battle.value.autoMode = true;
-      battle.value.start();
-    });
+    const battle: Ref<Battle> = ref(game.battleCenter.generateBattle('Battle00001', team));
+    battle.value.autoMode = true;
+    battle.value.start();
 
     onUnmounted(() => {
       battle.value.end();

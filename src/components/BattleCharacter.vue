@@ -1,13 +1,13 @@
 <template>
   <div ref="characterElement" class="character">
-    <img class="img" :src="imgUrl" />
+    <img class="img" :src="imgUrl" @click="skillSelectResolve && skillSelectResolve()" />
     <div>{{ character.name }}</div>
     <progress class="hp-bar" :max="character.properties.hp.battleValue" :value="character.currHp"></progress>
   </div>
 </template>
 
 <script lang="ts">
-import { CharacterBattle, EventDataDamaged } from 'sora-game-core';
+import { CharacterBattle, EventDataDamaged, EventDataSkillSelect } from 'sora-game-core';
 import { defineComponent, onMounted, PropType, Ref, ref, toRefs, watch } from 'vue';
 
 import { useLabel } from '@/use';
@@ -25,31 +25,41 @@ export default defineComponent({
     const currHp = ref(character.value.currHp);
     const characterElement: Ref<HTMLElement | undefined> = ref(undefined);
     let addLabel: (damage: number, color?: string) => void;
+    const skillSelectEventData: Ref<EventDataSkillSelect | undefined> = ref(undefined);
+    const skillSelectResolve: Ref<(() => void) | undefined> = ref();
+
     onMounted(() => {
       addLabel = useLabel(characterElement.value!);
     });
 
-    watch(
-      character,
-      () => {
-        character.value.battle.eventCenter.listen({
-          eventType: 'Damaged',
-          priority: 1,
-          filter: character.value,
-          callback: async (eventData: EventDataDamaged) => {
-            const { isCrit, finalDamage } = eventData;
-            addLabel(finalDamage!, isCrit ? 'red' : undefined);
+    character.value.battle.eventCenter.listen({
+      eventType: 'Damaged',
+      priority: 1,
+      filter: character.value,
+      callback: async (eventData: EventDataDamaged) => {
+        const { isCrit, finalDamage } = eventData;
+        addLabel(finalDamage!, isCrit ? 'red' : undefined);
 
-            return new Promise((resolve) => {
-              setTimeout(resolve, 500);
-            });
-          },
+        return new Promise((resolve) => {
+          setTimeout(resolve, 500);
         });
       },
-      { immediate: true },
-    );
+    });
 
-    return { currHp, characterElement, imgUrl: `/images/${character.value.id}.png` };
+    if (character.value.isPlayerControl) {
+      character.value.battle.eventCenter.listen({
+        eventType: 'SkillSelect',
+        filter: character.value,
+        callback: async (eventData: EventDataSkillSelect) => {
+          skillSelectEventData.value = eventData;
+          return new Promise((resolve) => {
+            skillSelectResolve.value = resolve;
+          });
+        },
+      });
+    }
+
+    return { currHp, characterElement, imgUrl: `/images/${character.value.id}.png`, skillSelectResolve };
   },
 });
 </script>
